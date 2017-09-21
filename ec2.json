@@ -1,0 +1,48 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Launch an EC2 instance",
+    "Parameters": {
+        "KeyName": {
+            "Description": "Key Pair Name",
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "Default": "Key_pair_demo"
+        },
+        "InstanceType": {
+            "Description": "Jenkins EC2 instance type",
+            "Type": "String",
+            "Default": "t2.micro",
+            "AllowedValues": ["t2.micro", "t2.small", "t2.medium"]
+        },
+		"Region": {
+	"Description": "Select the region",
+	"Type": "String",
+	"Default":"Asia Pacific (Mumbai)",
+	 "AllowedValues": ["Asia Pacific (Mumbai)","US East (Ohio)","Asia Pacific (Sydney)"]
+    }
+    },
+    "Resources": {
+        "Server": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": "ami-d7abd1b8",
+                "InstanceType": {"Ref": "InstanceType"},
+                "KeyName": {"Ref": "KeyName"},
+                "UserData":
+                {"Fn::Base64": {"Fn::Join": ["", [
+                    "#!/bin/bash -ex\n",
+                    "yum update -y\n", 
+                    "yum install java-1.8.0 -y\n",
+					"yum remove java-1.7.0-openjdk -y\n",
+					"wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo \n",
+					"rpm --import http://pkg.jenkins-ci.org/redhat-stable/jenkins-ci.org.key \n",
+					"yum install jenkins -y\n",
+					"service jenkins start\n",
+					"chkconfig jenkins on\n"
+                ]]}
+                }
+            }
+        }
+    },
+    "Outputs": {
+    }
+}
